@@ -1,0 +1,19 @@
+{
+    "name": "footility/foocrud",
+    "description": "massive curd creator for rapid development",
+    "type": "laravel-package",
+    "require": {
+        "laravel/laravel": "10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Footility\\Foocrud\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "footility",
+            "email": "paolo.mistretta@footility.com"
+        }
+    ]
+}
