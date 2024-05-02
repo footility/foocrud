@@ -3,7 +3,7 @@
     "description": "massive curd creator for rapid development",
     "type": "laravel-package",
     "require": {
-        "laravel/laravel": "10"
+        "laravel/framework": "^10.0"
     },
     "autoload": {
         "psr-4": {
