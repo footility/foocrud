@@ -28,7 +28,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Footility\\Foocrud\\Http\\FooCrudServiceProvider"
+        "Footility\\Foocrud\\Services\\FooCrudServiceProvider"
       ]
     }
   }
