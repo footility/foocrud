@@ -1,0 +1,21 @@
+@extends('layouts.app')
+
+@section('title', 'View {{ entityName }}')
+
+@section('content')
+<div class="container mt-4">
+    <h1>View {{ entityName }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ ${{ entityNameVariable }}->name }}</h5>
+            <p class="card-text">Additional details can be shown here.</p>
+            <a href="{{ route('{{ entityNameRoute }}.edit', ${{ entityNameVariable }}->id) }}" class="btn btn-warning">Edit</a>
+            <form action="{{ route('{{ entityNameRoute }}.destroy', ${{ entityNameVariable }}->id) }}" method="post" class="d-inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection

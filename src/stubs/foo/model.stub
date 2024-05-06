@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class {{ entityName }} extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name']; // Assicurati che questo campo corrisponda ai campi effettivamente utilizzati nel tuo modello.
+}

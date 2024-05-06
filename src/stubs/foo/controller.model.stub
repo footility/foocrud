@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{{ entityName }};
+use Illuminate\Http\Request;
+
+class {{ entityName }}Controller extends Controller
+{
+    public function index()
+    {
+        ${{ entityNameList }} = {{ entityName }}::all();
+        return view('{{ entityNameRoute }}.index', compact('{{ entityNameList }}'));
+    }
+
+    public function create()
+    {
+        return view('{{ entityNameRoute }}.create');
+    }
+
+    public function store(Request $request)
+    {
+        ${{ entityNameVariable }} = {{ entityName }}::create($request->all());
+        return redirect()->route('{{ entityNameRoute }}.index');
+    }
+
+    public function show({{ entityName }} ${{ entityNameVariable }})
+    {
+        return view('{{ entityNameRoute }}.show', compact('{{ entityNameVariable }}'));
+    }
+
+    public function edit({{ entityName }} ${{ entityNameVariable }})
+    {
+        return view('{{ entityNameRoute }}.edit', compact('{{ entityNameVariable }}'));
+    }
+
+    public function update(Request $request, {{ entityName }} ${{ entityNameVariable }})
+    {
+        ${{ entityNameVariable }}->update($request->all());
+        return redirect()->route('{{ entityNameRoute }}.index');
+    }
+
+    public function destroy({{ entityName }} ${{ entityNameVariable }})
+    {
+        ${{ entityNameVariable }}->delete();
+        return redirect()->route('{{ entityNameRoute }}.index');
+    }
+}
