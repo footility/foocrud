@@ -1,6 +1,6 @@
 <?php
 
-namespace Footility\Foocrud\Services\Http;
+namespace Footility\Foocrud\Services;
 
 
 use Footility\Console\Commands\CrudCleanCommand;
