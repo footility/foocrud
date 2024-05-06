@@ -1,9 +1,9 @@
 <?php
 
-namespace Footility\Foocrud\Http;
+namespace Footility\Foocrud\Service\Http;
 
 
-use Footility\Console\Commands\CrudCommand;
+use Footility\Console\Commands\CrudCleanCommand;
 use Footility\Console\Commands\CrudEntityCommand;
 use Footility\Console\Commands\CrudGenerateCommand;
 use Footility\Console\Commands\CrudInstallCommand;
