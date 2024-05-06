@@ -3,10 +3,10 @@
 namespace Footility\Foocrud\Services;
 
 
-use Footility\Console\Commands\CrudCleanCommand;
-use Footility\Console\Commands\CrudEntityCommand;
-use Footility\Console\Commands\CrudGenerateCommand;
-use Footility\Console\Commands\CrudInstallCommand;
+use Footility\Foocrud\Console\Commands\CrudCleanCommand;
+use Footility\Foocrud\Console\Commands\CrudEntityCommand;
+use Footility\Foocrud\Console\Commands\CrudGenerateCommand;
+use Footility\Foocrud\Console\Commands\CrudInstallCommand;
 use Illuminate\Support\ServiceProvider;
 
 class FooCrudServiceProvider extends ServiceProvider
