@@ -12,8 +12,22 @@
     },
     "authors": [
         {
-            "name": "footility",
-            "email": "paolo.mistretta@footility.com"
+      "name": "Paolo Mistretta",
+      "email": "p.mistretta@footility.com",
+      "homepage": "https://footility.com",
+      "role": "Full stack Web & App Developer"
         }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "support": {
+    "email": "paolo.mistretta@footility.com",
+    "issues": "https://github.com/footility/foocrud/issues",
+    "source": "https://github.com/footility/foocrud"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Footility\\Foocrud\\Http\\FooCrudServiceProvider"
     ]
 }
