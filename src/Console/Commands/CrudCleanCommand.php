@@ -29,12 +29,13 @@ class CrudCleanCommand extends Command
 
             // Rimuovi file e directory per ogni entità
             foreach ($entities as $entity) {
-                $this->removeEntityFiles($entity->name);
-            }
 
-            // Esegui la migrazione di rollback
-            if (!$this->rollbackMigration()) {
-                $this->error('Failed to rollback the migration for foo_entities table.');
+                $studlyName = \Illuminate\Support\Str::studly($entity->name);
+                $pluralSnakeName = \Illuminate\Support\Str::plural(\Illuminate\Support\Str::snake($entity->name));
+
+                $this->rollbackEntity($pluralSnakeName);
+                $this->removeEntityFiles($studlyName, $pluralSnakeName);
+                $this->removeEntityTable($pluralSnakeName);
             }
 
             // Elimina la tabella delle entità
@@ -42,7 +43,6 @@ class CrudCleanCommand extends Command
         }
 
         $this->forcedRemoveLostMigrations();
-
         $this->info('All entities and related files have been cleaned up successfully.');
     }
 
@@ -57,22 +57,6 @@ class CrudCleanCommand extends Command
                 File::delete($migrationFile);
             }
         } else $this->info('No migration file found for foo_entities table.');
-    }
-
-    protected function rollbackMigration()
-    {
-        $migrationFiles = File::glob(database_path('migrations/*create_foo_entities_table.php'));
-
-        if (count($migrationFiles) > 0) {
-            $migrationFile = last($migrationFiles); // Get the latest migration
-            $migrationFilePath = substr($migrationFile, strlen(base_path()) + 1); // Removes base path to get relative path
-
-            $rollbackResult = $this->call('migrate:rollback', ['--path' => $migrationFilePath]);
-            return $rollbackResult === 0;
-        }
-
-        $this->error('No migration file found for foo_entities table.');
-        return false;
     }
 
     protected function removeIndependentFiles()
@@ -96,16 +80,13 @@ class CrudCleanCommand extends Command
                 File::delete($path);
                 $this->info("Deleted file: {$path}");
             } else {
-                $this->error("Path not found: {$path}");
+                $this->info("No file to delete: {$path}");
             }
         }
     }
 
-    protected function removeEntityFiles($entityName)
+    protected function removeEntityFiles($studlyName, $pluralSnakeName)
     {
-        $studlyName = \Illuminate\Support\Str::studly($entityName);
-        $pluralSnakeName = \Illuminate\Support\Str::plural(\Illuminate\Support\Str::snake($entityName));
-
         $paths = [
             app_path("Models/{$studlyName}.php"),
             app_path("Http/Controllers/{$studlyName}Controller.php"),
@@ -147,6 +128,28 @@ class CrudCleanCommand extends Command
         } else {
             $this->error("web.php file not found.");
         }
+    }
+
+    private function rollbackEntity($pluralSnakeName)
+    {
+
+        $migrationFile = database_path("migrations/*create_foo_" . $pluralSnakeName . "_table.php");
+
+
+        if (File::exists($migrationFile)) {
+
+            $this->info("Rollback $migrationFile");
+            $this->call('migrate:rollback', ['--path' => $migrationFile]);
+            $this->info("Deleting $migrationFile");
+            File::delete($migrationFile);
+        } else
+            $this->error('No migration file found for foo_entities table.');
+
+    }
+
+    private function removeEntityTable($pluralSnakeName)
+    {
+        Schema::dropIfExists($pluralSnakeName);
     }
 
 
