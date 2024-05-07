@@ -4,11 +4,12 @@ namespace Footility\Foocrud\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class CrudInstallCommand extends Command
 {
     protected $signature = 'foo:crud-install';
-    protected $description = 'Install the CRUD entities table';
+    protected $description = 'Install the CRUD entities table directly';
 
     public function handle()
     {
@@ -17,12 +18,12 @@ class CrudInstallCommand extends Command
             return;
         }
 
+        Schema::create('foo_entities', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique(); // Assicura che il nome sia unico
+            $table->timestamps();
+        });
 
-        $this->call('make:migration', [
-            'name' => 'create_foo_entities_table',
-            '--create' => 'foo_entities'
-        ]);
-
-        $this->info('Migration for foo_entities table has been created. Please run "php artisan migrate" to apply.');
+        $this->info('The foo_entities table has been created successfully. You can now add CRUD entities.');
     }
 }

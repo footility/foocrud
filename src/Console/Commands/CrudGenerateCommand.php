@@ -75,8 +75,7 @@ class CrudGenerateCommand extends Command
     protected function generateConfiguration()
     {
         $configPath = config_path('foo_navigation.php');
-        $navigation = File::exists($configPath) ? require $configPath : [];
-
+        $navigation = [];
         $entities = DB::table('foo_entities')->get();
 
         foreach ($entities as $entity) {
@@ -84,14 +83,12 @@ class CrudGenerateCommand extends Command
             $label = Str::title($entity->name);
             $route = Str::plural(Str::snake($entity->name));
 
-            // Verifica se l'entità esiste già nel file di configurazione
-            if (!array_search($label, array_column($navigation, 'label'))) {
-                // Aggiungi l'entità alla configurazione
-                $navigation[] = [
-                    'label' => $label,
-                    'route' => $route . ".index"
-                ];
-            }
+            // Aggiungi l'entità alla configurazione
+            $navigation[] = [
+                'label' => $label,
+                'route' => $route . ".index"
+            ];
+
         }
 
         // Esporta l'array aggiornato nel file di configurazione
@@ -142,9 +139,8 @@ class CrudGenerateCommand extends Command
     protected function createBaseLayout()
     {
         $layoutPath = resource_path('views/layouts/app.blade.php');
-        if (!file_exists($layoutPath)) {
-            $this->generateFile($layoutPath, 'layout.stub');
-        }
+        $this->generateFile($layoutPath, 'layout.stub');
+
     }
 
     protected function generateViews()
@@ -161,13 +157,22 @@ class CrudGenerateCommand extends Command
 
     protected function generateFile($filePath, $stubName)
     {
-        $stub = file_get_contents(STUB_PATH . "/{$stubName}");
+        // Definisce il percorso base agli stub all'interno del pacchetto
+        $stubPath = base_path('vendor/footility/foocrud/src/stubs/' . $stubName);
+
+        if (!file_exists($stubPath)) {
+            $this->error("The stub file does not exist: {$stubPath}");
+            return;
+        }
+
+        $stub = file_get_contents($stubPath);
         foreach ($this->parseMap as $key => $value) {
             $stub = str_replace('{{ ' . $key . ' }}', $value, $stub);
         }
         file_put_contents($filePath, $stub);
         $this->info("File created: {$filePath}");
     }
+
 
     protected function findMigration()
     {
