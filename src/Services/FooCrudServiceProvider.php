@@ -21,9 +21,9 @@ class FooCrudServiceProvider extends ServiceProvider
                 CrudCleanCommand::class,
             ]);
 
-//            $this->publishes([
-//                __DIR__ . '/../stubs' => resource_path('stubs/foo'),
-//            ], 'foocrud-stubs');
+            $this->publishes([
+                __DIR__ . '/../stubs' => resource_path('stubs/foo'),
+            ], 'foocrud-stubs');
         }
     }
 

@@ -157,8 +157,16 @@ class CrudGenerateCommand extends Command
 
     protected function generateFile($filePath, $stubName)
     {
-        // Definisce il percorso base agli stub all'interno del pacchetto
+        //stub del pacchetto
         $stubPath = base_path('vendor/footility/foocrud/src/stubs/' . $stubName);
+
+        //stub pubblicati dall'utente
+        $publishedStubPath = base_path('/stubs/foo/' . $stubName);
+
+        //controllo quale file prendere
+        if (file_exists($publishedStubPath)) {
+            $stubPath = $publishedStubPath;
+        }
 
         if (!file_exists($stubPath)) {
             $this->error("The stub file does not exist: {$stubPath}");
