@@ -173,6 +173,8 @@ class CrudGenerateCommand extends Command
             return;
         }
 
+        $this->info("Reading stub file: {$stubPath}");
+
         $stub = file_get_contents($stubPath);
         foreach ($this->parseMap as $key => $value) {
             $stub = str_replace('{{ ' . $key . ' }}', $value, $stub);
