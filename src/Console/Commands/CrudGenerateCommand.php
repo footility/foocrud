@@ -15,7 +15,13 @@ class CrudGenerateCommand extends Command
     protected $signature = 'foo:crud-generate';
     protected $description = 'Generate a model with migration and resource controller';
 
-    private $parseMap = [];
+    private $entityMap = [];
+    private $fieldsMap = [];
+
+    private $entity = null;
+    private $entityFields = null;
+
+    private $stubString = null;
 
     public function __construct()
     {
@@ -51,7 +57,11 @@ class CrudGenerateCommand extends Command
 
     private function _handle(string $name)
     {
-        $this->parseMap = [
+
+        $this->entity = DB::table('foo_entities')->where('name', '=', $name)->first();
+        $this->entityFields = DB::table('foo_fields')->where('entity_id', '=', $this->entity->id);
+
+        $this->entityMap = [
             'entityName' => Str::studly($name),
             'entityNameVariable' => Str::camel($name),
             'entityNameRoute' => Str::plural(Str::snake($name)),
@@ -61,7 +71,9 @@ class CrudGenerateCommand extends Command
             'class' => Str::studly($name),
         ];
 
+
         $this->generateModel();
+        $this->generateRequest();
         $this->generateController();
         $this->generateMigration();
         $this->createBaseLayout();
@@ -98,17 +110,28 @@ class CrudGenerateCommand extends Command
         $this->info("Navigation configuration updated successfully.");
     }
 
+    public function generateRequest()
+    {
+
+    }
+
 
     protected function generateModel()
     {
-        $modelPath = app_path("Models/{$this->parseMap['entityName']}.php");
-        $this->generateFile($modelPath, 'model.stub');
+        $modelPath = app_path("Models/{$this->entityMap['entityName']}.php");
+        $this->openStub('model');
+        $this->applyStub();
+        $this->publishStub($modelPath);
+
     }
+
 
     protected function generateController()
     {
-        $controllerPath = app_path("Http/Controllers/{$this->parseMap['entityName']}Controller.php");
-        $this->generateFile($controllerPath, 'controller.model.stub');
+        $controllerPath = app_path("Http/Controllers/{$this->entityMap['entityName']}Controller.php");
+        $this->openStub('controller');
+        $this->applyStub();
+        $this->publishStub($controllerPath);
     }
 
     protected function generateMigration()
@@ -131,37 +154,46 @@ class CrudGenerateCommand extends Command
 
     protected function createNewMigration()
     {
+
+        $this->openStub('migration');
+        $this->applyStub();
+
         $datePrefix = date('Y_m_d_His');
-        $migrationPath = database_path("/migrations/{$datePrefix}_foo_create_{$this->parseMap['entityNameTable']}_table.php");
-        $this->generateFile($migrationPath, 'migration.create.stub');
+        $migrationPath = database_path("/migrations/{$datePrefix}_foo_create_{$this->entityMap['entityNameTable']}_table.php");
+        $this->publishStub($migrationPath);
     }
 
     protected function createBaseLayout()
     {
         $layoutPath = resource_path('views/layouts/app.blade.php');
-        $this->generateFile($layoutPath, 'layout.stub');
+        $this->openStub('layout');
+        $this->publishStub($layoutPath);
 
     }
 
     protected function generateViews()
     {
-        $viewsPath = resource_path("views/{$this->parseMap['entityNameRoute']}");
+        $viewsPath = resource_path("views/{$this->entityMap['entityNameRoute']}");
+
         if (!is_dir($viewsPath)) {
             mkdir($viewsPath, 0777, true);
         }
+
         foreach (['index', 'create', 'edit', 'show'] as $view) {
             $viewPath = "{$viewsPath}/{$view}.blade.php";
-            $this->generateFile($viewPath, "{$view}.stub");
+            $this->openStub($viewPath, "{$view}");
+            $this->publishStub($viewPath);
         }
     }
 
-    protected function generateFile($filePath, $stubName)
+    protected function openStub($stubName)
     {
+        $stubName = $stubName . ".stub";
         //stub del pacchetto
         $stubPath = base_path('vendor/footility/foocrud/src/stubs/' . $stubName);
 
         //stub pubblicati dall'utente
-        $publishedStubPath = base_path('/stubs/foo/' . $stubName);
+        $publishedStubPath = resource_path('/stubs/foo/' . $stubName);
 
         //controllo quale file prendere
         if (file_exists($publishedStubPath)) {
@@ -173,20 +205,21 @@ class CrudGenerateCommand extends Command
             return;
         }
 
-        $this->info("Reading stub file: {$stubPath}");
+        $this->stubString = file_get_contents($stubPath);
 
-        $stub = file_get_contents($stubPath);
-        foreach ($this->parseMap as $key => $value) {
-            $stub = str_replace('{{ ' . $key . ' }}', $value, $stub);
-        }
-        file_put_contents($filePath, $stub);
+
+    }
+
+    protected function publishStub($filePath)
+    {
+        file_put_contents($filePath, $this->stubString);
         $this->info("File created: {$filePath}");
     }
 
 
     protected function findMigration()
     {
-        $pattern = database_path("migrations/*_foo_create_{$this->parseMap['entityNameTable']}_table.php");
+        $pattern = database_path("migrations/*_foo_create_{$this->entityMap['entityNameTable']}_table.php");
         $migrations = glob($pattern);
         return $migrations ? $migrations[0] : null;
     }
@@ -217,5 +250,28 @@ class CrudGenerateCommand extends Command
     {
         $this->call('migrate');
         $this->info("Database migrations executed.");
+    }
+
+    private function generateMigrationFields()
+    {
+        $fields = $this->entityFields->get();
+
+        $fieldsPlaceholder = '';
+        foreach ($fields as $field) {
+            $fieldsPlaceholder .= "\$table->{$field->type}('{$field->name}');\n";
+        }
+        return $fieldsPlaceholder;
+    }
+
+    /**
+     * @param string $stubPath
+     * @return array|false|string|string[]
+     */
+    private function applyStub()
+    {
+        foreach ($this->entityMap as $key => $value) {
+            $this->stubString = str_replace('{{ ' . $key . ' }}', $value, $this->stubString);
+        }
+
     }
 }

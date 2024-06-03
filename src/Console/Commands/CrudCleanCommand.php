@@ -38,12 +38,25 @@ class CrudCleanCommand extends Command
                 $this->removeEntityTable($pluralSnakeName);
             }
 
+            // Elimina la tabella foo_fields prima di eliminare la tabella delle entità
+            $this->removeFooFieldsTable();
+
             // Elimina la tabella delle entità
             Schema::dropIfExists('foo_entities');
         }
 
         $this->forcedRemoveLostMigrations();
         $this->info('All entities and related files have been cleaned up successfully.');
+    }
+
+    private function removeFooFieldsTable()
+    {
+        if (Schema::hasTable('foo_fields')) {
+            Schema::dropIfExists('foo_fields');
+            $this->info('foo_fields table has been deleted successfully.');
+        } else {
+            $this->warn('The foo_fields table does not exist.');
+        }
     }
 
     private function forcedRemoveLostMigrations()
@@ -56,7 +69,9 @@ class CrudCleanCommand extends Command
                 $this->info("Deleting lost migration file $migrationFilePath");
                 File::delete($migrationFile);
             }
-        } else $this->info('No migration file found for foo_entities table.');
+        } else {
+            $this->info('No migration file found for foo_entities table.');
+        }
     }
 
     protected function removeIndependentFiles()
@@ -142,9 +157,9 @@ class CrudCleanCommand extends Command
             $this->call('migrate:rollback', ['--path' => $migrationFile]);
             $this->info("Deleting $migrationFile");
             File::delete($migrationFile);
-        } else
+        } else {
             $this->error('No migration file found for foo_entities table.');
-
+        }
     }
 
     private function removeEntityTable($pluralSnakeName)
