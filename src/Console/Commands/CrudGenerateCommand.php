@@ -120,7 +120,12 @@ class CrudGenerateCommand extends Command
     {
         $modelPath = app_path("Models/{$this->entityMap['entityName']}.php");
         $this->openStub('model');
-        $this->applyStub();
+
+        $fields = $this->entityFields->pluck('name')->toArray();
+        $fields = join(",",$fields);
+        $this->entityMap['fields'] = $fields;
+
+        $this->parseStub();
         $this->publishStub($modelPath);
 
     }
@@ -130,7 +135,7 @@ class CrudGenerateCommand extends Command
     {
         $controllerPath = app_path("Http/Controllers/{$this->entityMap['entityName']}Controller.php");
         $this->openStub('controller');
-        $this->applyStub();
+        $this->parseStub();
         $this->publishStub($controllerPath);
     }
 
@@ -156,7 +161,7 @@ class CrudGenerateCommand extends Command
     {
 
         $this->openStub('migration');
-        $this->applyStub();
+        $this->parseStub();
 
         $datePrefix = date('Y_m_d_His');
         $migrationPath = database_path("/migrations/{$datePrefix}_foo_create_{$this->entityMap['entityNameTable']}_table.php");
@@ -167,6 +172,7 @@ class CrudGenerateCommand extends Command
     {
         $layoutPath = resource_path('views/layouts/app.blade.php');
         $this->openStub('layout');
+        $this->parseStub();
         $this->publishStub($layoutPath);
 
     }
@@ -181,7 +187,8 @@ class CrudGenerateCommand extends Command
 
         foreach (['index', 'create', 'edit', 'show'] as $view) {
             $viewPath = "{$viewsPath}/{$view}.blade.php";
-            $this->openStub($viewPath, "{$view}");
+            $this->openStub($view);
+            $this->parseStub();
             $this->publishStub($viewPath);
         }
     }
@@ -206,7 +213,6 @@ class CrudGenerateCommand extends Command
         }
 
         $this->stubString = file_get_contents($stubPath);
-
 
     }
 
@@ -267,7 +273,7 @@ class CrudGenerateCommand extends Command
      * @param string $stubPath
      * @return array|false|string|string[]
      */
-    private function applyStub()
+    private function parseStub()
     {
         foreach ($this->entityMap as $key => $value) {
             $this->stubString = str_replace('{{ ' . $key . ' }}', $value, $this->stubString);

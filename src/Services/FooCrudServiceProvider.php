@@ -13,6 +13,9 @@ class FooCrudServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'foocrud');
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CrudInstallCommand::class,
@@ -25,6 +28,8 @@ class FooCrudServiceProvider extends ServiceProvider
                 __DIR__ . '/../stubs' => resource_path('stubs/foo'),
             ], 'foocrud-stubs');
         }
+
+
     }
 
 }

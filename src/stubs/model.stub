@@ -9,5 +9,5 @@ class {{ entityName }} extends Model
 {
     use HasFactory;
 
-    protected $fillable = {{ fields }}; // Assicurati che questo campo corrisponda ai campi effettivamente utilizzati nel tuo modello.
+    protected $fillable = [{{ fields }}]; // Assicurati che questo campo corrisponda ai campi effettivamente utilizzati nel tuo modello.
 }
